@@ -31,21 +31,18 @@ class PostsPresenter(private val getPostsUseCase: GetPostsUseCase) : KoinCompone
         view.render(PostScreenState.PostSelected(post))
     }
 
-    private fun loadPosts(pageToLoad: Int = 1): Disposable {
-        Timber.d("pageToLoad: $pageToLoad")
-        return getPostsUseCase.execute(pageToLoad)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { view.render(PostScreenState.Loading) }
-            .doAfterTerminate { view.render(PostScreenState.FinishedLoading) }
-            .subscribe(
-                { view.render(PostScreenState.DataAvailable(it)) },
-                { view.render(PostScreenState.Error(it)) }
-            )
-    }
+    private fun loadPosts(pageToLoad: Int = 1, loadFromRemote: Boolean = false) = getPostsUseCase.execute(pageToLoad, loadFromRemote)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnSubscribe { view.render(PostScreenState.Loading) }
+        .doAfterTerminate { view.render(PostScreenState.FinishedLoading) }
+        .subscribe(
+            { view.render(PostScreenState.DataAvailable(it)) },
+            { view.render(PostScreenState.Error(it)) }
+        )
 
     fun loadMorePosts() {
         if (currentPage * POSTS_PER_PAGE >= TOTAL_BLOG_POSTS) return
-        loadPosts(++currentPage)
+        loadPosts(++currentPage, true)
     }
 }

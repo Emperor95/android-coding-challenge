@@ -35,11 +35,12 @@ class BlogRepository(
         )
     }
 
-    override fun getPosts(pageToLoad: Int): Single<List<Post>> {
+    override fun getPosts(pageToLoad: Int, loadFromRemote: Boolean): Single<List<Post>> {
         return fetchData(
             local = { postDao.getAll() },
             remote = { blogApi.getPosts(pageToLoad) },
-            insert = { value -> postDao.insertAll(*value.toTypedArray()) }
+            insert = { value -> postDao.insertAll(*value.toTypedArray()) },
+            loadFromRemote = loadFromRemote
         )
     }
 
@@ -50,20 +51,27 @@ class BlogRepository(
     private fun <T> fetchData(
         local: () -> Single<List<T>>,
         remote: () -> Single<List<T>>,
-        insert: (insertValue: List<T>) -> Completable
+        insert: (insertValue: List<T>) -> Completable,
+        loadFromRemote: Boolean = false
     ): Single<List<T>> {
-
-        return local.invoke()
-            .flatMap {
-                if (it.isNotEmpty()) {
-                    Single.just(it)
-                } else {
-                    remote.invoke()
-                        .map { value ->
-                            insert.invoke(value).subscribe();
-                            value
-                        }
-                }
+        return if (loadFromRemote){
+            remote.invoke().map { value ->
+                insert.invoke(value).subscribe()
+                value
             }
+        } else {
+            local.invoke()
+                .flatMap {
+                    if (it.isNotEmpty()) {
+                        Single.just(it)
+                    } else {
+                        remote.invoke()
+                            .map { value ->
+                                insert.invoke(value).subscribe();
+                                value
+                            }
+                    }
+                }
+        }
     }
 }
