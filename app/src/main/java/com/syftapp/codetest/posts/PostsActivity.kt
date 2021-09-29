@@ -30,9 +30,12 @@ class PostsActivity : AppCompatActivity(), PostsView, KoinComponent {
         setContentView(R.layout.activity_posts)
         navigation = Navigation(this)
 
+        adapter = PostsAdapter(presenter)
+
         listOfPosts.layoutManager = LinearLayoutManager(this)
         val separator = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         listOfPosts.addItemDecoration(separator)
+        listOfPosts.adapter = adapter
 
         loadPostsOnPageEnd()
 
@@ -68,8 +71,7 @@ class PostsActivity : AppCompatActivity(), PostsView, KoinComponent {
         // this is a fairly crude implementation, if it was Flowable, it would
         // be better to use DiffUtil and consider notifyRangeChanged, notifyItemInserted, etc
         // to preserve animations on the RecyclerView
-        adapter = PostsAdapter(posts, presenter)
-        listOfPosts.adapter = adapter
+        adapter.submitList(posts)
         listOfPosts.visibility = View.VISIBLE
     }
 
@@ -97,9 +99,7 @@ class PostsActivity : AppCompatActivity(), PostsView, KoinComponent {
                 val pastVisibleItems: Int = linearLayoutManager.findFirstVisibleItemPosition()
 
                 if (pageScrolled && pastVisibleItems + visibleItemCount >= totalItemCount) {
-                    //reached bottom of recyclerView.
                     if (totalItemCount != TOTAL_BLOG_POSTS){
-                        Timber.d("loading more posts ...")
                         presenter.loadMorePosts()
                         pageScrolled = false
                     }

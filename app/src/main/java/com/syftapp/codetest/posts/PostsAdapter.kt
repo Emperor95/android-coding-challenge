@@ -4,15 +4,29 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.syftapp.codetest.R
 import com.syftapp.codetest.data.model.domain.Post
 import kotlinx.android.synthetic.main.view_post_list_item.view.*
 
 class PostsAdapter(
-    private val data: List<Post>,
     private val presenter: PostsPresenter
 ) : RecyclerView.Adapter<PostViewHolder>() {
+
+    private val DIffUtilsCallback = object : DiffUtil.ItemCallback<Post>() {
+
+        override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+            return oldItem == newItem
+        }
+
+    }
+    private val differ = AsyncListDiffer(this, DIffUtilsCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -22,11 +36,15 @@ class PostsAdapter(
     }
 
     override fun getItemCount(): Int {
-        return data.size
+        return differ.currentList.size
+    }
+
+    fun submitList(list: List<Post>) {
+        differ.submitList(list)
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        holder.bind(data.get(position))
+        holder.bind(differ.currentList[position])
     }
 }
 
