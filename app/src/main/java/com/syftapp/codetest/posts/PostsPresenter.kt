@@ -5,16 +5,16 @@ import com.syftapp.codetest.Constants.TOTAL_BLOG_POSTS
 import com.syftapp.codetest.data.model.domain.Post
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
-import timber.log.Timber
 
 class PostsPresenter(private val getPostsUseCase: GetPostsUseCase) : KoinComponent {
 
     private val compositeDisposable = CompositeDisposable()
     private lateinit var view: PostsView
+
     private var currentPage = 1
+    private val postsListToDisplay = mutableListOf<Post>()
 
     fun bind(view: PostsView) {
         this.view = view
@@ -37,7 +37,10 @@ class PostsPresenter(private val getPostsUseCase: GetPostsUseCase) : KoinCompone
         .doOnSubscribe { view.render(PostScreenState.Loading) }
         .doAfterTerminate { view.render(PostScreenState.FinishedLoading) }
         .subscribe(
-            { view.render(PostScreenState.DataAvailable(it)) },
+            {
+                postsListToDisplay.addAll(it)
+                view.render(PostScreenState.DataAvailable(postsListToDisplay))
+            },
             { view.render(PostScreenState.Error(it)) }
         )
 

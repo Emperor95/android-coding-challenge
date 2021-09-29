@@ -1,5 +1,6 @@
 package com.syftapp.codetest.posts
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,10 +32,11 @@ class PostsAdapter(
 
 class PostViewHolder(private val view: View, private val presenter: PostsPresenter) : RecyclerView.ViewHolder(view) {
 
-    fun bind(item: Post) {
-        view.postTitle.text = "${adapterPosition + 1} ${item.title}"
-        view.bodyPreview.text = item.body
-        view.setOnClickListener { presenter.showDetails(item) }
+    @SuppressLint("SetTextI18n")
+    fun bind(item: Post) = with(item){
+        view.postTitle.text = "$id $title"
+        view.bodyPreview.text = body
+        view.setOnClickListener { presenter.showDetails(this) }
     }
 
 }
