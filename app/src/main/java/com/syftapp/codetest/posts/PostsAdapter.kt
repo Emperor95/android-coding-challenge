@@ -32,7 +32,7 @@ class PostsAdapter(
 class PostViewHolder(private val view: View, private val presenter: PostsPresenter) : RecyclerView.ViewHolder(view) {
 
     fun bind(item: Post) {
-        view.postTitle.text = item.title
+        view.postTitle.text = "${adapterPosition + 1} ${item.title}"
         view.bodyPreview.text = item.body
         view.setOnClickListener { presenter.showDetails(item) }
     }
