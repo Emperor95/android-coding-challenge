@@ -2,14 +2,12 @@ package com.syftapp.codetest.posts
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.syftapp.codetest.R
 import com.syftapp.codetest.data.model.domain.Post
-import kotlinx.android.synthetic.main.view_post_list_item.view.*
+import com.syftapp.codetest.databinding.ViewPostListItemBinding
 
 class PostsAdapter(
     private val presenter: PostsPresenter
@@ -30,7 +28,7 @@ class PostsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.view_post_list_item, parent, false)
+        val view = ViewPostListItemBinding.inflate(layoutInflater, parent, false)
 
         return PostViewHolder(view, presenter)
     }
@@ -48,13 +46,16 @@ class PostsAdapter(
     }
 }
 
-class PostViewHolder(private val view: View, private val presenter: PostsPresenter) : RecyclerView.ViewHolder(view) {
+class PostViewHolder(
+    private val view: ViewPostListItemBinding,
+    private val presenter: PostsPresenter
+) : RecyclerView.ViewHolder(view.root) {
 
     @SuppressLint("SetTextI18n")
     fun bind(item: Post) = with(item){
         view.postTitle.text = "$id $title"
         view.bodyPreview.text = body
-        view.setOnClickListener { presenter.showDetails(this) }
+        view.root.setOnClickListener { presenter.showDetails(this) }
     }
 
 }

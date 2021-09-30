@@ -3,7 +3,6 @@ package com.syftapp.codetest.posts
 import android.os.Bundle
 import android.view.View
 import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,32 +11,30 @@ import com.syftapp.codetest.Constants.TOTAL_BLOG_POSTS
 import com.syftapp.codetest.Navigation
 import com.syftapp.codetest.R
 import com.syftapp.codetest.data.model.domain.Post
-import kotlinx.android.synthetic.main.activity_posts.*
+import com.syftapp.codetest.databinding.ActivityPostsBinding
 import org.koin.android.ext.android.inject
 import org.koin.core.KoinComponent
-import timber.log.Timber
 
 class PostsActivity : AppCompatActivity(), PostsView, KoinComponent {
 
     private val presenter: PostsPresenter by inject()
     private lateinit var navigation: Navigation
 
-    private lateinit var adapter: PostsAdapter
+    private val binding by lazy { ActivityPostsBinding.inflate(layoutInflater) }
+    private val postAdapter by lazy { PostsAdapter(presenter) }
     private var pageScrolled = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_posts)
+        setContentView(binding.root)
         navigation = Navigation(this)
 
-        adapter = PostsAdapter(presenter)
-
-        listOfPosts.layoutManager = LinearLayoutManager(this)
-        val separator = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        listOfPosts.addItemDecoration(separator)
-        listOfPosts.adapter = adapter
-
-        loadPostsOnPageEnd()
+        with(binding.listOfPosts){
+            val separator = DividerItemDecoration(this@PostsActivity, DividerItemDecoration.VERTICAL)
+            addItemDecoration(separator)
+            adapter = postAdapter
+            loadPostsOnPageEnd()
+        }
 
         presenter.bind(this)
     }
@@ -57,33 +54,32 @@ class PostsActivity : AppCompatActivity(), PostsView, KoinComponent {
         }
     }
 
-    private fun showLoading() {
+    private fun showLoading() = with(binding) {
         error.visibility = View.GONE
         listOfPosts.visibility = View.GONE
         loading.visibility = View.VISIBLE
     }
 
-    private fun hideLoading() {
+    private fun hideLoading() = with(binding) {
         loading.visibility = View.GONE
     }
 
-    private fun showPosts(posts: List<Post>) {
+    private fun showPosts(posts: List<Post>) = with(binding) {
         // this is a fairly crude implementation, if it was Flowable, it would
         // be better to use DiffUtil and consider notifyRangeChanged, notifyItemInserted, etc
         // to preserve animations on the RecyclerView
-        adapter.submitList(posts)
+        postAdapter.submitList(posts)
         listOfPosts.visibility = View.VISIBLE
     }
 
-    private fun showError(message: String) {
+    private fun showError(message: String) = with(binding) {
         error.visibility = View.VISIBLE
-        error.setText(message)
+        error.text = message
     }
 
-    private fun loadPostsOnPageEnd() {
-        val linearLayoutManager = listOfPosts.layoutManager as LinearLayoutManager
-
-        listOfPosts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+    private fun RecyclerView.loadPostsOnPageEnd() {
+        val linearLayoutManager = layoutManager as LinearLayoutManager
+        addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
 

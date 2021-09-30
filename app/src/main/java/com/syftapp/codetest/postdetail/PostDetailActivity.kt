@@ -8,17 +8,18 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.syftapp.codetest.R
 import com.syftapp.codetest.data.model.domain.Post
-import kotlinx.android.synthetic.main.activity_post_details.*
+import com.syftapp.codetest.databinding.ActivityPostDetailsBinding
 import org.koin.android.ext.android.inject
 import org.koin.core.KoinComponent
 
 class PostDetailActivity : AppCompatActivity(), PostDetailView, KoinComponent {
 
     private val presenter: PostDetailPresenter by inject()
+    private val binding by lazy { ActivityPostDetailsBinding.inflate(layoutInflater) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_post_details)
+        setContentView(binding.root)
 
         val postId = intent?.extras?.getInt(ARG_POST_ID, -1)
         if (postId == null || postId == -1) {
@@ -46,11 +47,11 @@ class PostDetailActivity : AppCompatActivity(), PostDetailView, KoinComponent {
         }
     }
 
-    private fun hideLoading() {
+    private fun hideLoading() = with(binding) {
         loading.visibility = View.GONE
     }
 
-    private fun showPost(post: Post) {
+    private fun showPost(post: Post) = with(binding)  {
         with(View.VISIBLE) {
             postTitle.visibility = this
             postBody.visibility = this
@@ -62,10 +63,9 @@ class PostDetailActivity : AppCompatActivity(), PostDetailView, KoinComponent {
         postBody.text = post.body
     }
 
-    private fun showLoading() {
+    private fun showLoading() = with(binding)  {
         with(View.GONE) {
             error.visibility = this
-
             postTitle.visibility = this
             postBody.visibility = this
         }
