@@ -11,6 +11,6 @@ interface BlogDataProvider {
 
     fun getComments(): Single<List<Comment>>
 
-    fun getPosts(pageToLoad: Int, loadFromRemote: Boolean = false): Single<List<Post>>
+    fun getPosts(pageToLoad: Int = 1, loadFromRemote: Boolean = false): Single<List<Post>>
 
 }

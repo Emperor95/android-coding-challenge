@@ -7,7 +7,7 @@ import org.koin.core.KoinComponent
 
 class GetPostsUseCase(private val repository: BlogRepository) : KoinComponent {
 
-    fun execute(pageToLoad: Int, loadFromRemote: Boolean): Single<List<Post>> {
+    fun execute(pageToLoad: Int = 1, loadFromRemote: Boolean = false): Single<List<Post>> {
         // users must be available for the blog posts
         return repository.getUsers()
             .ignoreElement()

@@ -19,7 +19,7 @@ interface BlogService {
 
     @GET("/posts")
     fun getPosts(
-        @Query("_page") pageToLoad: Int,
+        @Query("_page") pageToLoad: Int = 1,
         @Query("_limit") postsPerPage: Int = POSTS_PER_PAGE
     ): Single<List<Post>>
 

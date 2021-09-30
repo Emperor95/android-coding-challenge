@@ -10,7 +10,7 @@ import org.junit.Test
 
 class BlogApiTest {
 
-    private val blogService = mockk<BlogService>()
+    private val blogService = StubBlogService()
     private val sut = BlogApi(blogService)
 
     @Test
