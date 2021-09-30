@@ -18,16 +18,16 @@ import org.koin.core.KoinComponent
 class PostsActivity : AppCompatActivity(), PostsView, KoinComponent {
 
     private val presenter: PostsPresenter by inject()
-    private lateinit var navigation: Navigation
 
+    private val navigation by lazy { Navigation(this) }
     private val binding by lazy { ActivityPostsBinding.inflate(layoutInflater) }
     private val postAdapter by lazy { PostsAdapter(presenter) }
+
     private var pageScrolled = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        navigation = Navigation(this)
 
         with(binding.listOfPosts){
             val separator = DividerItemDecoration(this@PostsActivity, DividerItemDecoration.VERTICAL)
